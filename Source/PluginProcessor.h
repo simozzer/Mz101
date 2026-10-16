@@ -1,3 +1,6 @@
+// Mz101 - Copyright (C) 2026 Simon Moscrop
+// Free software under the GNU AGPL v3; see LICENSE.
+
 #pragma once
 
 #include <juce_audio_utils/juce_audio_utils.h>

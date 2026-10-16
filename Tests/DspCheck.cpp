@@ -1,3 +1,6 @@
+// Mz101 - Copyright (C) 2026 Simon Moscrop
+// Free software under the GNU AGPL v3; see LICENSE.
+
 //
 // The engine, checked on its own: pitch, the sub dividers, filter self-oscillation and
 // tracking, the envelope letting go, the arpeggiator's order, and that no setting of any

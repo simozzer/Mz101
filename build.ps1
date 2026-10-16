@@ -85,15 +85,17 @@ if (-not (Test-Path (Join-Path $buildDir "CMakeCache.txt"))) {
 Write-Host ""
 Write-Host "building the VST3 and the standalone"
 
-# The version is written down once, in CMakeLists.txt, and the binaries and installer are
-# stamped from it. JUCE writes the Windows version resource once and never again, so after a
-# version bump the old one is thrown away here, or the binaries go on saying the old version.
-$cmakeLists = Get-Content (Join-Path $root "CMakeLists.txt") -Raw
+# The version and copyright are written down once, in CMakeLists.txt, and the binaries and
+# installer are stamped from them. JUCE writes the Windows version resource once and never
+# again, so when CMakeLists.txt has changed since, the old one is thrown away here, or the
+# binaries go on saying the old version and copyright.
+$cmakeListsPath = Join-Path $root "CMakeLists.txt"
+$cmakeLists = Get-Content $cmakeListsPath -Raw
 if ($cmakeLists -notmatch "project\(Mz101 VERSION ([0-9.]+)") { Write-Error "no version in CMakeLists.txt" }
 $version = $Matches[1]
 
 $rc = Join-Path $buildDir "Mz101_artefacts\JuceLibraryCode\Mz101_resources.rc"
-if ((Test-Path $rc) -and -not (Select-String -Path $rc -SimpleMatch "`"$version\0`"" -Quiet)) {
+if ((Test-Path $rc) -and (Get-Item $rc).LastWriteTime -lt (Get-Item $cmakeListsPath).LastWriteTime) {
     Remove-Item $rc
 }
 
