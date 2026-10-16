@@ -1,7 +1,7 @@
 ;
 ; The Windows installer: the VST3 and the standalone in one Setup.exe.
 ;
-;     .\build.ps1 -Installer       builds the plugin, then this, into dist\
+;     .\build.ps1 -Release         builds the plugin, then this, into dist\
 ;
 ; build.ps1 passes the version read from CMakeLists.txt, so it is written down once. Compiled
 ; by hand without it, the installer says 0.0.0 rather than a version it was not built from.

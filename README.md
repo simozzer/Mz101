@@ -69,10 +69,26 @@ this repository (`..\JUCE`, or pass `-DJUCE_PATH=`).
     .\build.ps1                 engine check, then the VST3 and the standalone
     .\build.ps1 -NoPlugin       engine check only
     .\build.ps1 -Wav out        and render demo phrases into out\ to listen to
-    .\build.ps1 -Installer      and package both into dist\ as a Setup.exe
+    .\build.ps1 -Release        and the release downloads into dist\: Setup.exe and two zips
 
-The installer needs [Inno Setup 6](https://jrsoftware.org/isdl.php). Its script is
+`-Release` needs [Inno Setup 6](https://jrsoftware.org/isdl.php). The installer's script is
 `installer\Mz101.iss`, and it takes its version from `CMakeLists.txt`.
+
+## Releasing
+
+GitHub builds the downloads for every release and attaches them, so each one has its
+installer:
+
+1. Bump the version in `CMakeLists.txt`.
+2. Write the notes in `docs/releases/v<version>.md`, then commit both.
+3. Tag and push: `git tag -a v0.2.0 -m "Mz101 0.2.0"`, then `git push origin main v0.2.0`.
+4. The *release* workflow builds and checks the plugin, then makes a **draft** release with
+   the notes and the three downloads. Read it over on GitHub and publish it.
+
+The workflow stops if the tag and the version in `CMakeLists.txt` disagree. If you create
+the release on GitHub with a new tag instead, the downloads are added to it a few minutes
+later. To rebuild an existing release's downloads, run the workflow from the *Actions* tab
+with that tag.
 
 The VST3 is installed to `%LOCALAPPDATA%\Programs\Common\VST3`, the per-user folder, which
 needs no administrator rights. Some hosts need that folder adding to their plugin paths once.

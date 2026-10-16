@@ -4,7 +4,8 @@
         .\build.ps1                  engine check, then the VST3 and the standalone
         .\build.ps1 -NoPlugin        engine check only, for iterating on the DSP
         .\build.ps1 -Wav <dir>       and write demo phrases to <dir> to listen to
-        .\build.ps1 -Installer       and package both into dist\Mz101-<version>-win64-Setup.exe
+        .\build.ps1 -Release         and the files a release attaches, into dist\: the installer,
+                                     and a zip each of the VST3 and the standalone
 
     The check gates the plugin rather than standing in for it: if the engine is out of tune
     or blows up, there is no point wrapping a plugin round it, and if it passes the plugin is
@@ -15,7 +16,7 @@
 #>
 param(
     [switch]$NoPlugin,
-    [switch]$Installer,
+    [switch]$Release,
     [string]$Wav = ""
 )
 
@@ -120,7 +121,7 @@ foreach ($a in $artefacts) {
     if ($stale) { Write-Error "an artefact is older than the sources it was built from" }
 }
 
-if (-not $Installer) { exit 0 }
+if (-not $Release) { exit 0 }
 
 # ---------------------------------------------------------------- the installer
 
@@ -137,7 +138,36 @@ Write-Host "building the installer for $version"
 & $iscc /Q "/DAppVersion=$version" (Join-Path $root "installer\Mz101.iss")
 if ($LASTEXITCODE -ne 0) { Write-Error "the installer build failed" }
 
-$setup = Get-Item (Join-Path $root "dist\Mz101-$version-win64-Setup.exe")
-Write-Host ("ok  -  {0}  {1:N1} MB   {2}" -f $setup.Name, ($setup.Length / 1MB), $setup.LastWriteTime) -ForegroundColor Green
+# ---------------------------------------------------------------- the zips, for installing by hand
+
+Write-Host "building the zips"
+
+$dist = Join-Path $root "dist"
+$stage = Join-Path $buildDir "zip"
+$readme = (Get-Content (Join-Path $root "installer\README.txt") -Raw).Replace("@VERSION@", $version)
+$bundles = @{
+    "VST3"       = Join-Path $buildDir "Mz101_artefacts\Release\VST3\Mz101.vst3"
+    "Standalone" = Join-Path $buildDir "Mz101_artefacts\Release\Standalone\Mz101.exe"
+}
+
+foreach ($kind in $bundles.Keys) {
+    $d = Join-Path $stage $kind
+    if (Test-Path $d) { Remove-Item $d -Recurse -Force }
+    New-Item -ItemType Directory -Force -Path $d | Out-Null
+    Copy-Item $bundles[$kind] $d -Recurse
+    Copy-Item (Join-Path $root "LICENSE") $d
+    Set-Content (Join-Path $d "README.txt") $readme -NoNewline
+
+    $zip = Join-Path $dist "Mz101-$version-win64-$kind.zip"
+    if (Test-Path $zip) { Remove-Item $zip }
+    Compress-Archive -Path (Join-Path $d "*") -DestinationPath $zip
+}
+
+# Report what is on disk, as for the build.
+Write-Host ""
+foreach ($kind in "Setup.exe", "VST3.zip", "Standalone.zip") {
+    $f = Get-Item (Join-Path $dist "Mz101-$version-win64-$kind")
+    Write-Host ("ok  -  {0,-34} {1,5:N1} MB   {2}" -f $f.Name, ($f.Length / 1MB), $f.LastWriteTime) -ForegroundColor Green
+}
 
 exit 0
