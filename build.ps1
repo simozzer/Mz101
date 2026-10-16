@@ -4,6 +4,7 @@
         .\build.ps1                  engine check, then the VST3 and the standalone
         .\build.ps1 -NoPlugin        engine check only, for iterating on the DSP
         .\build.ps1 -Wav <dir>       and write demo phrases to <dir> to listen to
+        .\build.ps1 -Installer       and package both into dist\Mz101-<version>-win64-Setup.exe
 
     The check gates the plugin rather than standing in for it: if the engine is out of tune
     or blows up, there is no point wrapping a plugin round it, and if it passes the plugin is
@@ -14,6 +15,7 @@
 #>
 param(
     [switch]$NoPlugin,
+    [switch]$Installer,
     [string]$Wav = ""
 )
 
@@ -82,6 +84,18 @@ if (-not (Test-Path (Join-Path $buildDir "CMakeCache.txt"))) {
 Write-Host ""
 Write-Host "building the VST3 and the standalone"
 
+# The version is written down once, in CMakeLists.txt, and the binaries and installer are
+# stamped from it. JUCE writes the Windows version resource once and never again, so after a
+# version bump the old one is thrown away here, or the binaries go on saying the old version.
+$cmakeLists = Get-Content (Join-Path $root "CMakeLists.txt") -Raw
+if ($cmakeLists -notmatch "project\(Mz101 VERSION ([0-9.]+)") { Write-Error "no version in CMakeLists.txt" }
+$version = $Matches[1]
+
+$rc = Join-Path $buildDir "Mz101_artefacts\JuceLibraryCode\Mz101_resources.rc"
+if ((Test-Path $rc) -and -not (Select-String -Path $rc -SimpleMatch "`"$version\0`"" -Quiet)) {
+    Remove-Item $rc
+}
+
 & $cmake --build $buildDir --config Release --target Mz101_VST3 Mz101_Standalone -- /m /v:minimal |
     Where-Object { $_ -match "error|warning C|installed to|could not be" }
 if ($LASTEXITCODE -ne 0) { Write-Error "the plugin build failed" }
@@ -105,5 +119,25 @@ foreach ($a in $artefacts) {
                -ForegroundColor $(if ($stale) { "Red" } else { "Green" })
     if ($stale) { Write-Error "an artefact is older than the sources it was built from" }
 }
+
+if (-not $Installer) { exit 0 }
+
+# ---------------------------------------------------------------- the installer
+
+$iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source
+if (-not $iscc) {
+    $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe") |
+            Where-Object { Test-Path $_ } | Select-Object -First 1
+}
+if (-not $iscc) { Write-Error "No Inno Setup 6. Install it from https://jrsoftware.org/isdl.php" }
+
+Write-Host ""
+Write-Host "building the installer for $version"
+
+& $iscc /Q "/DAppVersion=$version" (Join-Path $root "installer\Mz101.iss")
+if ($LASTEXITCODE -ne 0) { Write-Error "the installer build failed" }
+
+$setup = Get-Item (Join-Path $root "dist\Mz101-$version-win64-Setup.exe")
+Write-Host ("ok  -  {0}  {1:N1} MB   {2}" -f $setup.Name, ($setup.Length / 1MB), $setup.LastWriteTime) -ForegroundColor Green
 
 exit 0

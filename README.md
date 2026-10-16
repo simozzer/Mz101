@@ -43,10 +43,20 @@ Mz101 is an independent project. Roland and SH-101 are Roland's trademarks.
 
 ## Installing
 
-Mz101 is built from source for now: see [Building](#building). The build installs the VST3
-into your per-user plugin folder, `%LOCALAPPDATA%\Programs\Common\VST3`. Most DAWs find it
-there. Some need the folder added to their plugin paths once; in Ableton Live it goes under
-*Preferences → Plug-Ins → VST3 Plug-In Custom Folder*.
+Download `Mz101-<version>-win64-Setup.exe` from the
+[releases page](https://github.com/simozzer/Mz101/releases) and run it. It installs the VST3,
+the standalone app, or both, and asks whether to install for everyone or just you:
+
+- **Everyone** (needs administrator rights) puts the VST3 in
+  `C:\Program Files\Common Files\VST3`, which every DAW scans.
+- **Just me** puts it in `%LOCALAPPDATA%\Programs\Common\VST3`. Some DAWs need that folder
+  added to their plugin paths once; in Ableton Live it goes under
+  *Preferences → Plug-Ins → VST3 Plug-In Custom Folder*.
+
+Then rescan plugins in your DAW. The installer isn't code-signed, so Windows may warn about an
+unknown publisher: choose *More info → Run anyway*. Uninstall from *Settings → Apps*.
+
+To build it yourself instead, see [Building](#building).
 
 The standalone app, `Mz101.exe`, plays without a DAW. Its *Options* button chooses the audio
 and MIDI devices.
@@ -59,6 +69,10 @@ this repository (`..\JUCE`, or pass `-DJUCE_PATH=`).
     .\build.ps1                 engine check, then the VST3 and the standalone
     .\build.ps1 -NoPlugin       engine check only
     .\build.ps1 -Wav out        and render demo phrases into out\ to listen to
+    .\build.ps1 -Installer      and package both into dist\ as a Setup.exe
+
+The installer needs [Inno Setup 6](https://jrsoftware.org/isdl.php). Its script is
+`installer\Mz101.iss`, and it takes its version from `CMakeLists.txt`.
 
 The VST3 is installed to `%LOCALAPPDATA%\Programs\Common\VST3`, the per-user folder, which
 needs no administrator rights. Some hosts need that folder adding to their plugin paths once.
