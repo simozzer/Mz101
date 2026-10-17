@@ -28,7 +28,7 @@ AppPublisher=simozzer
 AppPublisherURL=https://github.com/simozzer/Mz101
 AppSupportURL=https://github.com/simozzer/Mz101/issues
 AppUpdatesURL=https://github.com/simozzer/Mz101/releases
-AppCopyright=Copyright (C) 2026 Simon Moscrop
+AppCopyright=Created by Simon Moscrop
 VersionInfoVersion={#AppVersion}
 
 DefaultDirName={autopf}\Mz101

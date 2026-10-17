@@ -1,4 +1,4 @@
-// Mz101 - Copyright (C) 2026 Simon Moscrop
+// Mz101 - Created by Simon Moscrop
 // Free software under the GNU AGPL v3; see LICENSE.
 
 #include "PluginProcessor.h"
