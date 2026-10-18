@@ -418,8 +418,9 @@ Panel::Panel(Mz101Processor& p)
     //
     projectLink.setButtonText("Mz101 " JucePlugin_VersionString "  -  github.com/simozzer/Mz101");
     projectLink.setURL(juce::URL("https://github.com/simozzer/Mz101"));
-    projectLink.setFont(juce::FontOptions(12.0f), false, juce::Justification::centredRight);
-    projectLink.setColour(juce::HyperlinkButton::textColourId, colours::dim);
+    projectLink.setFont(juce::Font(juce::FontOptions(13.0f)).withStyle(juce::Font::bold | juce::Font::underlined),
+                        false, juce::Justification::centredRight);
+    projectLink.setColour(juce::HyperlinkButton::textColourId, juce::Colour(0xff6ab0ff));   // a link's blue, and underlined
     projectLink.setTooltip("The project's page: the latest version and what's new in it, the source, "
                            "and where to report a problem. Opens in your browser.");
     projectLink.setWantsKeyboardFocus(false);
