@@ -411,6 +411,20 @@ Panel::Panel(Mz101Processor& p)
     };
     addAndMakeVisible(presetBox);
 
+    //
+    // Where to come back to: the version this is, and the page the next one will be on.
+    // Nothing here checks for updates by itself - the plugin never goes online unasked.
+    // It takes no keyboard focus, or a host's space bar could open it rather than play.
+    //
+    projectLink.setButtonText("Mz101 " JucePlugin_VersionString "  -  github.com/simozzer/Mz101");
+    projectLink.setURL(juce::URL("https://github.com/simozzer/Mz101"));
+    projectLink.setFont(juce::FontOptions(12.0f), false, juce::Justification::centredRight);
+    projectLink.setColour(juce::HyperlinkButton::textColourId, colours::dim);
+    projectLink.setTooltip("The project's page: the latest version and what's new in it, the source, "
+                           "and where to report a problem. Opens in your browser.");
+    projectLink.setWantsKeyboardFocus(false);
+    addAndMakeVisible(projectLink);
+
     // The 101's 32 keys, F to C.
     keyboard.setAvailableRange(41, 72);
     keyboard.setOctaveForMiddleC(4);   // middle C is C4, as the hints and README count it
@@ -513,6 +527,7 @@ void Panel::resized()
     constexpr int margin = 14;
 
     presetBox.setBounds(designWidth - margin - 220, 12, 220, 26);
+    projectLink.setBounds(presetBox.getX() - 16 - 420, presetBox.getY(), 420, presetBox.getHeight());
 
     layoutRow(topRow, margin, 54, 300, designWidth - margin);
     const int right = layoutRow(bottomRow, margin, 366, 230, 0);

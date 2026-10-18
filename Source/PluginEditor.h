@@ -180,6 +180,9 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> holdAttachment;
 
     juce::ComboBox presetBox;
+
+    // This version, and where to find the next: the project's page, beside the presets.
+    juce::HyperlinkButton projectLink;
     juce::MidiKeyboardComponent keyboard;
     juce::Rectangle<int> keyboardSection;
 };
